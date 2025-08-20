@@ -1,8 +1,8 @@
 # 🎓 J'Jay Yabsley - Professional CV
 
-[![Build CV](https://github.com/jay-yabsley/curriculum-vitae/actions/workflows/build-cv.yml/badge.svg)](https://github.com/jay-yabsley/curriculum-vitae/actions/workflows/build-cv.yml)
-[![Latest Release](https://img.shields.io/github/v/release/jay-yabsley/curriculum-vitae)](https://github.com/jay-yabsley/curriculum-vitae/releases/latest)
-[![PDF Download](https://img.shields.io/badge/PDF-Download%20Latest-blue?logo=adobeacrobatreader)](https://github.com/jay-yabsley/curriculum-vitae/releases/latest/download/JJay_Yabsley_CV_latest.pdf)
+[![Build CV](https://github.com/jayyabsley/curriculum-vitae/actions/workflows/build-cv.yml/badge.svg)](https://github.com/jayyabsley/curriculum-vitae/actions/workflows/build-cv.yml)
+[![Latest Release](https://img.shields.io/github/v/release/jayyabsley/curriculum-vitae)](https://github.com/jayyabsley/curriculum-vitae/releases/latest)
+[![PDF Download](https://img.shields.io/badge/PDF-Download%20Latest-blue?logo=adobeacrobatreader)](https://github.com/jayyabsley/curriculum-vitae/releases/latest/download/JJay_Yabsley_CV_latest.pdf)
 
 > **Personal CV Repository** - Automated LaTeX CV generation with GitHub Actions pipeline.
 
@@ -10,9 +10,9 @@
 
 | Resource | Link |
 |----------|------|
-| **📄 Latest PDF** | [Download CV](https://github.com/jay-yabsley/curriculum-vitae/releases/latest/download/JJay_Yabsley_CV_latest.pdf) |
-| **🚀 All Releases** | [View Releases](https://github.com/jay-yabsley/curriculum-vitae/releases) |
-| **🔧 Build Status** | [GitHub Actions](https://github.com/jay-yabsley/curriculum-vitae/actions) |
+| **📄 Latest PDF** | [Download CV](https://github.com/jayyabsley/curriculum-vitae/releases/latest/download/JJay_Yabsley_CV_latest.pdf) |
+| **🚀 All Releases** | [View Releases](https://github.com/jayyabsley/curriculum-vitae/releases) |
+| **🔧 Build Status** | [GitHub Actions](https://github.com/jayyabsley/curriculum-vitae/actions) |
 | **📝 Source LaTeX** | [src/cv.tex](src/cv.tex) |
 
 ## ✨ Features
