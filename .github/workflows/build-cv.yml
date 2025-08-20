@@ -1,0 +1,217 @@
+name: 🎓 Build and Release CV
+
+on:
+  push:
+    branches: [ main, master ]
+    paths: 
+      - 'src/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'src/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (optional - will auto-generate if not provided)'
+        required: false
+        type: string
+
+env:
+  CV_FILENAME: "JJay_Yabsley_CV"
+  LATEX_ROOT: "src"
+  OUTPUT_DIR: "output"
+
+jobs:
+  # Job 1: Build CV
+  build:
+    name: 🔨 Build LaTeX CV
+    runs-on: ubuntu-latest
+    
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      pdf-path: ${{ steps.build.outputs.pdf-path }}
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for proper versioning
+    
+    - name: 🏷️ Generate Version
+      id: version
+      run: |
+        if [ "${{ github.event.inputs.version }}" != "" ]; then
+          VERSION="${{ github.event.inputs.version }}"
+        else
+          # Generate semantic version based on date and commit
+          DATE=$(date +%Y.%m.%d)
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          VERSION="v${DATE}-${SHORT_SHA}"
+        fi
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        echo "Generated version: ${VERSION}"
+    
+    - name: 📁 Create Output Directory
+      run: mkdir -p ${{ env.OUTPUT_DIR }}
+    
+    - name: 🔧 Cache LaTeX Dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.texlive
+          /tmp/texlive
+        key: ${{ runner.os }}-texlive-${{ hashFiles('**/*.tex') }}
+        restore-keys: |
+          ${{ runner.os }}-texlive-
+    
+    - name: 📝 Compile LaTeX CV
+      id: build
+      uses: xu-cheng/latex-action@v3
+      with:
+        root_file: cv.tex
+        working_directory: ${{ env.LATEX_ROOT }}
+        compiler: pdflatex
+        args: -interaction=nonstopmode -file-line-error
+        extra_system_packages: "py-pygments"
+        extra_fonts: |
+          fonts/**.ttf
+          fonts/**.otf
+        post_compile: |
+          mkdir -p ../${{ env.OUTPUT_DIR }}
+          cp cv.pdf "../${{ env.OUTPUT_DIR }}/${{ env.CV_FILENAME }}_${{ steps.version.outputs.version }}.pdf"
+          cp cv.pdf "../${{ env.OUTPUT_DIR }}/${{ env.CV_FILENAME }}_latest.pdf"
+    
+    - name: 📊 Validate PDF Output
+      run: |
+        if [ ! -f "${{ env.OUTPUT_DIR }}/${{ env.CV_FILENAME }}_${{ steps.version.outputs.version }}.pdf" ]; then
+          echo "❌ Error: PDF was not generated successfully"
+          exit 1
+        fi
+        
+        # Check PDF file size (should be reasonable, not empty or corrupted)
+        SIZE=$(stat -c%s "${{ env.OUTPUT_DIR }}/${{ env.CV_FILENAME }}_${{ steps.version.outputs.version }}.pdf")
+        if [ $SIZE -lt 1000 ]; then
+          echo "❌ Error: Generated PDF appears to be corrupted (too small: ${SIZE} bytes)"
+          exit 1
+        fi
+        
+        echo "✅ PDF validation successful (Size: ${SIZE} bytes)"
+        echo "pdf-path=${{ env.OUTPUT_DIR }}/${{ env.CV_FILENAME }}_${{ steps.version.outputs.version }}.pdf" >> $GITHUB_OUTPUT
+    
+    - name: 📤 Upload CV Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: cv-pdf-${{ steps.version.outputs.version }}
+        path: |
+          ${{ env.OUTPUT_DIR }}/*.pdf
+        retention-days: 90
+    
+    - name: 💾 Commit Generated PDF (Main Branch Only)
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add ${{ env.OUTPUT_DIR }}/*.pdf || true
+        git commit -m "Auto-update CV PDF - ${{ steps.version.outputs.version }}" || exit 0
+        git push
+
+  # Job 2: Create Release (only on main/master branch)
+  release:
+    name: 🚀 Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: 📥 Download CV Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: cv-pdf-${{ needs.build.outputs.version }}
+        path: ./release-assets
+    
+    - name: 📋 Generate Release Notes
+      id: release_notes
+      run: |
+        cat > release_notes.md << 'EOF'
+        ## 🎓 CV Release ${{ needs.build.outputs.version }}
+        
+        ### 📄 What's Included
+        - **Latest CV PDF**: Professional LaTeX-compiled resume
+        - **Optimized for ATS**: Applicant Tracking System compatible
+        - **Print Ready**: High-quality formatting for both digital and print use
+        
+        ### 🔧 Build Information
+        - **Build Date**: $(date '+%Y-%m-%d %H:%M:%S UTC')
+        - **Commit SHA**: ${{ github.sha }}
+        - **Workflow**: ${{ github.workflow }}
+        
+        ### 📥 Quick Download
+        The CV is available as `${{ env.CV_FILENAME }}_${{ needs.build.outputs.version }}.pdf` in the assets below.
+        
+        ---
+        
+        > This release was automatically generated by GitHub Actions
+        EOF
+    
+    - name: 🏷️ Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ needs.build.outputs.version }}
+        name: "CV Release ${{ needs.build.outputs.version }}"
+        body_path: release_notes.md
+        files: |
+          ./release-assets/*.pdf
+        draft: false
+        prerelease: false
+        make_latest: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Job 3: Quality Check & Notifications
+  quality-check:
+    name: 🔍 Quality Assurance
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Download CV Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: cv-pdf-${{ needs.build.outputs.version }}
+        path: ./qa-check
+    
+    - name: 🔍 PDF Quality Analysis
+      run: |
+        echo "## 📊 CV Build Quality Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        for pdf in ./qa-check/*.pdf; do
+          if [ -f "$pdf" ]; then
+            SIZE=$(stat -c%s "$pdf")
+            SIZE_KB=$((SIZE / 1024))
+            echo "### 📄 $(basename "$pdf")" >> $GITHUB_STEP_SUMMARY
+            echo "- **File Size**: ${SIZE_KB} KB" >> $GITHUB_STEP_SUMMARY
+            echo "- **Status**: ✅ Generated Successfully" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            # Check if PDF size is reasonable (between 50KB and 2MB)
+            if [ $SIZE_KB -lt 50 ]; then
+              echo "⚠️ Warning: PDF seems small (${SIZE_KB} KB)" >> $GITHUB_STEP_SUMMARY
+            elif [ $SIZE_KB -gt 2048 ]; then
+              echo "⚠️ Warning: PDF seems large (${SIZE_KB} KB)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "✅ PDF size is optimal" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+        done
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "---" >> $GITHUB_STEP_SUMMARY
+        echo "*Quality check completed at $(date)*" >> $GITHUB_STEP_SUMMARY

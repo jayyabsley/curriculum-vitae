@@ -1,0 +1,119 @@
+# LaTeX Build Files
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.lof
+*.lot
+*.lol
+*.idx
+*.ilg
+*.ind
+*.nav
+*.snm
+*.vrb
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+*.ist
+*.maf
+*.mtc
+*.mtc0
+*.brf
+*.end
+*.figlist
+*.makefile
+*.fls
+*.fdb_latexmk
+*.dpth
+*.md5
+*.auxlock
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+*.sublime-*
+
+# Temporary Files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# LaTeX Distribution Specific
+texput.log
+missfont.log
+*.auxlock
+
+# Build Artifacts
+build/
+dist/
+
+# Node.js (if using any JS tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python (if using any Python scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Personal/Sensitive Information Backup Files
+personal_backup/
+drafts/
+*.personal
+
+# Version Control
+.git/
+.gitattributes
+
+# Archive Files
+*.zip
+*.rar
+*.7z
+*.tar.gz
+
+# Lock Files
+package-lock.json
+yarn.lock
+
+# Keep output directory but ignore specific patterns
+output/*.log
+output/*.aux
+output/*.tmp
+
+# Allow important output files
+!output/*.pdf
+!output/README.md

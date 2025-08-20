@@ -1,0 +1,91 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Professional Software Engineer CV
+% LaTeX Template
+% Version 2.0 (2024)
+%
+% Based on Overleaf Professional Resume Template
+% Optimized for ATS and professional presentation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[11pt,a4paper,sans]{moderncv}
+
+% ModernCV themes
+\moderncvstyle{banking} % CV theme - options include: 'casual' (default), 'classic', 'oldstyle' and 'banking'
+\moderncvcolor{blue} % CV color - options include: 'blue' (default), 'orange', 'green', 'red', 'purple', 'grey' and 'black'
+
+\usepackage[utf8]{inputenc}
+\usepackage[scale=0.85]{geometry} % Reduce document margins
+\usepackage{import}
+\usepackage{multicol}
+\usepackage{enumitem}
+\usepackage{amssymb}
+
+% Personal data
+\name{J'Jay}{Yabsley}
+\address{Caringbah South, 2229}{}{}
+\phone[mobile]{0404 211 790}
+\email{jay.yabsley@gmail.com}
+\social[github]{jay-yabsley} % Optional - add your GitHub username
+\social[linkedin]{jay-yabsley} % Optional - add your LinkedIn profile
+
+% Adjust the page margins
+\setlength{\hintscolumnwidth}{2.5cm}
+\setlength{\makecvheadnamewidth}{10cm}
+
+%----------------------------------------------------------------------------------------
+%	DOCUMENT
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%	CURRICULUM VITAE
+%----------------------------------------------------------------------------------------
+
+\makecvtitle % Print the CV title
+
+%----------------------------------------------------------------------------------------
+%	PROFESSIONAL SUMMARY SECTION
+%----------------------------------------------------------------------------------------
+
+\section{Professional Summary}
+\cvitem{}{Software Engineer with over 9 years of experience in software development and API integration. Proficient in C++, Python, and C\#, with a proven track record in leading technical implementations and delivering scalable solutions. Adept at collaborating with diverse teams to meet business and user needs.}
+
+%----------------------------------------------------------------------------------------
+%	TECHNICAL SKILLS SECTION
+%----------------------------------------------------------------------------------------
+
+\input{sections/skills}
+
+%----------------------------------------------------------------------------------------
+%	WORK EXPERIENCE SECTION
+%----------------------------------------------------------------------------------------
+
+\input{sections/experience}
+
+%----------------------------------------------------------------------------------------
+%	PROJECTS SECTION
+%----------------------------------------------------------------------------------------
+
+\input{sections/projects}
+
+%----------------------------------------------------------------------------------------
+%	EDUCATION SECTION
+%----------------------------------------------------------------------------------------
+
+\input{sections/education}
+
+%----------------------------------------------------------------------------------------
+%	REFERENCES SECTION
+%----------------------------------------------------------------------------------------
+
+\section{References}
+\cvitem{}{Available upon request}
+
+%----------------------------------------------------------------------------------------
+
+\end{document}
