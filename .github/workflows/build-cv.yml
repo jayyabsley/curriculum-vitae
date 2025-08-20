@@ -68,20 +68,17 @@ jobs:
     
     - name: 📝 Compile LaTeX CV
       id: build
-      uses: xu-cheng/latex-action@v3
+      uses: xu-cheng/latex-action@v2
       with:
         root_file: cv.tex
         working_directory: ${{ env.LATEX_ROOT }}
-        compiler: pdflatex
-        args: -interaction=nonstopmode -file-line-error
-        extra_system_packages: "py-pygments"
-        extra_fonts: |
-          fonts/**.ttf
-          fonts/**.otf
-        post_compile: |
-          mkdir -p ../${{ env.OUTPUT_DIR }}
-          cp cv.pdf "../${{ env.OUTPUT_DIR }}/${{ env.CV_FILENAME }}_${{ steps.version.outputs.version }}.pdf"
-          cp cv.pdf "../${{ env.OUTPUT_DIR }}/${{ env.CV_FILENAME }}_latest.pdf"
+        latexmk_shell_escape: true
+    
+    - name: 📁 Copy Generated PDF
+      run: |
+        mkdir -p ${{ env.OUTPUT_DIR }}
+        cp ${{ env.LATEX_ROOT }}/cv.pdf "${{ env.OUTPUT_DIR }}/${{ env.CV_FILENAME }}_${{ steps.version.outputs.version }}.pdf"
+        cp ${{ env.LATEX_ROOT }}/cv.pdf "${{ env.OUTPUT_DIR }}/${{ env.CV_FILENAME }}_latest.pdf"
     
     - name: 📊 Validate PDF Output
       run: |
