@@ -18,6 +18,12 @@ on:
         required: false
         type: string
 
+# Add permissions for GitHub Actions
+permissions:
+  contents: write
+  pull-requests: write
+  releases: write
+
 env:
   CV_FILENAME: "JJay_Yabsley_CV"
   LATEX_ROOT: "src"
