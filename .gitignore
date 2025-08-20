@@ -99,6 +99,9 @@ drafts/
 .git/
 .gitattributes
 
+# Claude Code settings
+.claude/
+
 # Archive Files
 *.zip
 *.rar
