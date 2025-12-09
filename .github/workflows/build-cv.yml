@@ -1,14 +1,21 @@
-name: Build and Publish LaTeX CV
-on: [push, pull_request, workflow_dispatch]
+name: Build and Release CV
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
 permissions:
   contents: write
+
 jobs:
-  build_latex:
-    name: "Build CV"
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Git repository
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Compile LaTeX document
         uses: xu-cheng/latex-action@v2
@@ -16,10 +23,42 @@ jobs:
           root_file: cv.tex
           working_directory: src
           latexmk_shell_escape: true
-          
-      - name: Upload artifact
+
+      - name: Rename PDF for release
+        run: mv src/cv.pdf src/JJay_Yabsley_CV_latest.pdf
+
+      - name: Generate unique version tag
+        id: version
+        run: |
+          BASE_VERSION="v$(date +%Y.%m.%d)"
+          VERSION="$BASE_VERSION"
+          COUNTER=2
+
+          while git rev-parse "$VERSION" >/dev/null 2>&1; do
+            VERSION="${BASE_VERSION}-${COUNTER}"
+            COUNTER=$((COUNTER + 1))
+          done
+
+          echo "tag=$VERSION" >> $GITHUB_OUTPUT
+          echo "date=$(date +%Y-%m-%d)" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: CV Update - ${{ steps.version.outputs.date }}
+          body: |
+            Automated CV build from commit ${{ github.sha }}
+
+            **Download**: [JJay_Yabsley_CV_latest.pdf](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.tag }}/JJay_Yabsley_CV_latest.pdf)
+          files: src/JJay_Yabsley_CV_latest.pdf
+          draft: false
+          prerelease: false
+
+      - name: Upload artifact for PR preview
+        if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
-          name: Curriculum Vitae
-          path: |
-            src/*.pdf
+          name: CV-Preview
+          path: src/JJay_Yabsley_CV_latest.pdf
